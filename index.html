@@ -179,8 +179,6 @@
             nav { flex-direction: column; gap: 15px; }
             .nav-right { flex-direction: column; gap: 15px; width: 100%; }
             .nav-links { gap: 20px; }
-            
-            /* Mobile Typing Fix */
             .typing-wrapper { font-size: 1.5rem; }
         }
     </style>
@@ -217,7 +215,6 @@
 
         <nav>
             <div class="logo magnetic-btn" onclick="gsap.to(window, {duration: 1.5, scrollTo: 0, ease: 'power3.inOut'})">CHIRAG<span>26</span></div>
-            
             <div class="nav-right">
                 <div class="nav-links">
                     <a class="nav-link magnetic-btn" href="#about">About</a>
@@ -278,8 +275,20 @@
 
         <section id="projects">
             <div class="section-header reveal-up"><h2>Selected Work</h2><p>A collection of my best web development projects.</p></div>
-            <div class="grid-container">
+            <div class="grid-container" id="project-grid">
+                
                 <div class="project-card reveal-up" data-tilt>
+                    <div class="card-top">
+                        <div class="folder-icon"><i class="fas fa-robot"></i></div>
+                        <h3>Jarvis AI</h3><p>Advanced Voice Assistant built for web automation and interaction.</p>
+                    </div>
+                    <div class="card-meta">
+                        <div class="tech-stack"><span>AI</span><span>JS</span></div>
+                        <a href="https://chiragchoudhary26.github.io/Jarvis/" target="_blank" class="project-link magnetic-btn">Live Demo &rarr;</a>
+                    </div>
+                </div>
+
+                <div class="project-card reveal-up delay-200" data-tilt>
                     <div class="card-top">
                         <div class="folder-icon"><i class="fas fa-crown"></i></div>
                         <h3>Royal Website</h3><p>A luxurious, high-end website design showcasing premium aesthetics.</p>
@@ -289,7 +298,8 @@
                         <a href="https://chiragchoudhary26.github.io/royal-1-m-/" target="_blank" class="project-link magnetic-btn">Visit Site &rarr;</a>
                     </div>
                 </div>
-                <div class="project-card reveal-up delay-200" data-tilt>
+
+                <div class="project-card reveal-up delay-400" data-tilt>
                     <div class="card-top">
                         <div class="folder-icon"><i class="fas fa-laptop-code"></i></div>
                         <h3>My Personal Site</h3><p>The official portfolio displaying my journey, skills, and contact information.</p>
@@ -299,17 +309,8 @@
                         <a href="https://chiragchoudhary26.github.io/MY-WEBSITE/" target="_blank" class="project-link magnetic-btn">Visit Site &rarr;</a>
                     </div>
                 </div>
-                <div class="project-card reveal-up delay-400" data-tilt>
-                    <div class="card-top">
-                        <div class="folder-icon"><i class="fab fa-github"></i></div>
-                        <h3>More on GitHub</h3><p>Explore my source code, contributions, and experimental projects.</p>
-                    </div>
-                    <div class="card-meta">
-                        <div class="tech-stack"><span>Open Source</span></div>
-                        <a href="https://github.com/chiragchoudhary26" target="_blank" class="project-link magnetic-btn">View Profile &rarr;</a>
-                    </div>
+
                 </div>
-            </div>
         </section>
 
         <section id="contact">
@@ -343,12 +344,12 @@
                 setTimeout(() => {
                     document.body.style.overflowX = 'hidden';
                     initAnimations(); 
-                    typeEffect(); // START TYPING
+                    typeEffect(); 
+                    fetchDynamicRepos(); // Fetch New Repos automatically
                 }, 500);
             }, 3000); 
         });
 
-        // --- TYPING EFFECT LOGIC ---
         const typingText = document.querySelector(".typing-text");
         const words = ["Chirag", "a Web Developer", "a Freelancer", "Creative"];
         let wordIndex = 0;
@@ -357,7 +358,6 @@
 
         function typeEffect() {
             const currentWord = words[wordIndex];
-            
             if (isDeleting) {
                 typingText.textContent = currentWord.substring(0, charIndex - 1);
                 charIndex--;
@@ -365,18 +365,14 @@
                 typingText.textContent = currentWord.substring(0, charIndex + 1);
                 charIndex++;
             }
-
             let typeSpeed = isDeleting ? 100 : 200;
-
             if (!isDeleting && charIndex === currentWord.length) {
-                typeSpeed = 2000; // Wait before deleting
+                typeSpeed = 2000; 
                 isDeleting = true;
             } else if (isDeleting && charIndex === 0) {
                 isDeleting = false;
                 wordIndex++;
-                if (wordIndex === words.length) {
-                    wordIndex = 0;
-                }
+                if (wordIndex === words.length) { wordIndex = 0; }
                 typeSpeed = 500;
             }
             setTimeout(typeEffect, typeSpeed);
@@ -402,7 +398,6 @@
             });
         }
 
-        // --- MAGNETIC BUTTONS ---
         if(window.matchMedia("(min-width: 900px)").matches) {
             const magnets = document.querySelectorAll('.magnetic-btn');
             magnets.forEach((magnet) => {
@@ -418,7 +413,6 @@
             });
         }
 
-        // --- BACK TO TOP ---
         (function($) { "use strict";
             var progressPath = document.querySelector('.progress-wrap path');
             var pathLength = progressPath.getTotalLength();
@@ -443,7 +437,6 @@
             });
         })();
 
-        // --- COPY TOAST ---
         function copyEmail() {
             navigator.clipboard.writeText("cc1723238@gmail.com");
             var toast = document.getElementById("toast");
@@ -451,7 +444,6 @@
             setTimeout(function(){ toast.className = toast.className.replace("show", ""); }, 3000);
         }
 
-        // --- CUSTOM CURSOR ---
         const cursorDot = document.querySelector('[data-cursor-dot]');
         const cursorOutline = document.querySelector('[data-cursor-outline]');
         if(window.matchMedia("(min-width: 900px)").matches) {
@@ -469,7 +461,6 @@
             });
         }
 
-        // --- LIVE TIME ---
         function updateTime() {
             const now = new Date();
             const timeString = now.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
@@ -478,7 +469,71 @@
         setInterval(updateTime, 1000);
         updateTime();
 
-        // --- TILT & PARTICLES ---
+        // --- NEW FUNCTION: AUTO UPDATE FROM GITHUB ---
+        async function fetchDynamicRepos() {
+            try {
+                // Fetch recent repos sorted by created date
+                const response = await fetch('https://api.github.com/users/chiragchoudhary26/repos?sort=created&direction=desc');
+                const repos = await response.json();
+                
+                const grid = document.getElementById('project-grid');
+                const excluded = ['Jarvis', 'royal-1-m-', 'MY-WEBSITE']; // Already hardcoded
+                let count = 0;
+
+                repos.forEach(repo => {
+                    // Only show 2 latest dynamic repos that are NOT hardcoded
+                    if (!excluded.includes(repo.name) && count < 2) {
+                        const card = document.createElement('div');
+                        card.className = "project-card reveal-up";
+                        card.setAttribute('data-tilt', '');
+                        
+                        // Use homepage link if available, else repo link
+                        const link = repo.homepage ? repo.homepage : repo.html_url;
+                        
+                        card.innerHTML = `
+                            <div class="card-top">
+                                <div class="folder-icon"><i class="fab fa-github"></i></div>
+                                <h3>${repo.name.replace(/-/g, ' ')}</h3>
+                                <p>${repo.description || 'A new innovative project by Chirag.'}</p>
+                            </div>
+                            <div class="card-meta">
+                                <div class="tech-stack"><span>${repo.language || 'Code'}</span></div>
+                                <a href="${link}" target="_blank" class="project-link magnetic-btn">View Project &rarr;</a>
+                            </div>
+                        `;
+                        grid.appendChild(card);
+                        count++;
+                    }
+                });
+
+                // Re-initialize Tilt for new elements
+                const newCards = document.querySelectorAll('[data-tilt]');
+                newCards.forEach(card => {
+                    card.addEventListener('mousemove', (e) => {
+                        const rect = card.getBoundingClientRect();
+                        const x = e.clientX - rect.left; const y = e.clientY - rect.top;
+                        const centerX = rect.width / 2; const centerY = rect.height / 2;
+                        const rotateX = ((y - centerY) / centerY) * -5;
+                        const rotateY = ((x - centerX) / centerX) * 5;
+                        card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-5px)`;
+                    });
+                    card.addEventListener('mouseleave', () => {
+                        card.style.transform = `perspective(1000px) rotateX(0) rotateY(0) translateY(0)`;
+                    });
+                });
+                
+                // Animate new elements
+                gsap.fromTo(".project-card:not([style])", 
+                    { y: 50, opacity: 0 },
+                    { y: 0, opacity: 1, duration: 1, ease: "power3.out", stagger: 0.2 }
+                );
+
+            } catch (error) {
+                console.log("GitHub API Error: ", error);
+            }
+        }
+
+        // Existing Tilt Logic for hardcoded cards
         const cards = document.querySelectorAll('[data-tilt]');
         cards.forEach(card => {
             card.addEventListener('mousemove', (e) => {
