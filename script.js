@@ -45,11 +45,12 @@ function initAnimations() {
     gsap.to("nav", { duration: 1, opacity: 1, y: 0, ease: "power2.out" });
     gsap.to(".sidebar-left", { duration: 1, opacity: 1, y: 0, delay: 0.5, ease: "power2.out" });
     
+    // LAG FIXED: Duration from 1.5 -> 0.6, Ease to power2.out, offsetY 70 so header doesn't overlap text
     document.querySelectorAll('a[href^="#"]').forEach(link => {
         link.addEventListener('click', function(e) {
             e.preventDefault();
             const target = this.getAttribute('href');
-            gsap.to(window, { duration: 1.5, scrollTo: { y: target, offsetY: 50 }, ease: "power3.inOut" });
+            gsap.to(window, { duration: 0.6, scrollTo: { y: target, offsetY: 70 }, ease: "power2.out" });
         });
     });
 
@@ -61,7 +62,7 @@ function initAnimations() {
     });
 }
 
-// --- MAGNETIC BUTTONS (Simple, without breaking cursor) ---
+// --- MAGNETIC BUTTONS ---
 if(window.matchMedia("(min-width: 900px)").matches) {
     const magnets = document.querySelectorAll('.magnetic-btn');
     magnets.forEach((magnet) => {
@@ -120,8 +121,7 @@ if(window.matchMedia("(min-width: 900px)").matches) {
         gsap.to(cursorOutline, { x: posX, y: posY, duration: 0.15, ease: "power2.out" });
     });
     
-    // Add simple hover effect (grow slightly, don't stick)
-    const hoverables = document.querySelectorAll('a, button, .logo, .btn, .tech-icon, .sidebar-icon, .magnetic-btn, .email-link');
+    const hoverables = document.querySelectorAll('a, button, .logo, .btn, .tech-icon, .sidebar-icon, .magnetic-btn');
     hoverables.forEach(el => {
         el.addEventListener('mouseenter', () => document.body.classList.add('hovering'));
         el.addEventListener('mouseleave', () => document.body.classList.remove('hovering'));
@@ -191,7 +191,7 @@ function applyTilt(card) {
 }
 document.querySelectorAll('[data-tilt]').forEach(card => applyTilt(card));
 
-// --- CONNECTING PARTICLES (FROM YOUR CODE) ---
+// --- CONNECTING PARTICLES ---
 const canvas = document.getElementById('particles-js');
 const ctx = canvas.getContext('2d');
 let particlesArray = [];
@@ -268,7 +268,6 @@ fetch('https://api.github.com/users/chiragchoudhary26')
     .then(res => res.json())
     .then(data => { if(data.public_repos) document.getElementById('repo-count').innerText = data.public_repos + "+"; });
 
-
 // ==========================================
 // --- 1 FREE-ROAMING DRAGON ANIMATION ---
 // ==========================================
@@ -278,11 +277,19 @@ const xlinkns = "http://www.w3.org/1999/xlink";
 
 let width = window.innerWidth;
 let height = window.innerHeight;
+
+// YAHAN CHECK KAREGA: Phone hai toh 0.2, Laptop hai toh 0.4
+let dragonScale = window.innerWidth < 900 ? 0.2 : 0.4;
+
 const autoPointer = { x: width / 2, y: height / 2 };
 
 let rad = 0; let frm = Math.random(); const N = 35; const elems = [];
 
 for (let i = 0; i < N; i++) elems[i] = { use: null, x: width / 2, y: 0 };
+
+window.addEventListener("resize", () => { 
+    dragonScale = window.innerWidth < 900 ? 0.2 : 0.4;
+}, false);
 
 const prepend = (use, i) => {
     const elem = document.createElementNS(xmlns, "use");
@@ -316,7 +323,9 @@ const runDragon = () => {
         const a = Math.atan2(curr.y - prev.y, curr.x - prev.x);
         curr.x += (prev.x - curr.x + (Math.cos(a) * (100 - i)) / 5) / 4;
         curr.y += (prev.y - curr.y + (Math.sin(a) * (100 - i)) / 5) / 4;
-        const s = ((162 + 4 * (1 - i)) / 50) * 0.4;
+        
+        const s = ((162 + 4 * (1 - i)) / 50) * dragonScale;
+        
         curr.use.setAttributeNS(null, "transform", `translate(${(prev.x + curr.x) / 2},${(prev.y + curr.y) / 2}) rotate(${(180 / Math.PI) * a}) scale(${s},${s})`);
     }
     if (rad < radm()) rad++;
